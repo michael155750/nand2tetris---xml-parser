@@ -35,27 +35,43 @@ let main argv =
     let file=File.ReadLines(path) 
     
     for line in file do
-        let mutable temp=""
-        for word in line.Split(" ") do
-            //check if keyboard
-            if List.exists(fun elem->elem=word)keywords then
-                _zz.Add(XElement(XName.Get("keyword"),word))
+        let mutable tempString=""
+        let mutable stringFlag=false;
+        let mutable tempNumber=""
+        let mutable numberFlag=false
+        for word in line.ToCharArray() do
            //check if symbol     
-            elif List.exists(fun elem->elem=word)symbols then
-                _zz.Add(XElement(XName.Get("symbol"),word))
-            
+           if List.exists(fun elem->elem=string(word))symbols then
+               if numberFlag then
+                    _zz.Add(XElement(XName.Get("integerConstant"),tempNumber))
+                    numberFlag<-false
+                    tempNumber<-""
+               _zz.Add(XElement(XName.Get("symbol"),word))
             //check if int
                 //if the number is 0
-            elif word.Length>0 && word.ToCharArray().[0]='0' then
+            elif word='0' then
                 (_zz.Add(XElement(XName.Get("integerConstant"),"0")))
                 //another numbers
-            elif word.Length>0 && isNumber(word.ToCharArray().[0]) then
-                temp<-""+string (word.ToCharArray().[0])
-                let mutable i=1
-                while isDigit(word.ToCharArray().[i]) && i<word.Length do
-                    temp<-temp+string (word.ToCharArray().[i])
-                    i<-i+1
-                _zz.Add(XElement(XName.Get("integerConstant"),temp))
+            elif isNumber(word) then
+                tempNumber<-""+string(word)
+                numberFlag<-true
+            elif word='"' then
+                if stringFlag then
+                    _zz.Add(XElement(XName.Get("stringConstant"),tempString))
+                    tempString<-""
+                else
+                    stringFlag<-true
+                    tempString<-tempString
+
+                
+               
+           
+           //check if keyboard
+           elif List.exists(fun elem->elem=string(word))keywords then
+                _zz.Add(XElement(XName.Get("keyword"),word))
+           
+            
+           
             
     
     let doc=XDocument()
