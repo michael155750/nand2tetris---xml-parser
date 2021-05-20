@@ -34,22 +34,33 @@ let main argv =
     let path2 = Path.GetDirectoryName(path) + "\\" + Path.GetFileNameWithoutExtension(path) + "T.xml"
     let file=File.ReadLines(path) 
     
-    //why is unfemilliar in the internal scope?
-    let mutable  multyLinesCommentFlag=false
-    let mutable startEndCommentFlag = false
+    
+    let mutable  blockCommentFlag = false
+    let mutable endBlockCommentFlag = false
+    let mutable startCommentFlag = false
+    
     for line in file do
         let mutable tempString=""
         let mutable stringFlag=false
         let mutable tempNumber=""
         let mutable numberFlag=false
         let mutable lineCommentFlag=false
-        let mutable startCommentFlag=false
+        //let mutable startCommentFlag=false
 
         for ch in line.ToCharArray() do
            
-           if not multyLinesCommentFlag then
+           if not blockCommentFlag then
                if not lineCommentFlag  then
                 
+                    if startCommentFlag && (ch == '*' || ch == '/') then
+                        if ch == '*' then
+                            blockCommentFlag <- true
+                        elif ch == '/' then
+                            lineCommentFlag <- true
+                        else 
+                            startCommentFlag <- false
+                            _zz.Add(XElement(XName.Get("symbol"),ch))
+
                     if stringFlag && ch <> '"' then
                          tempString <- tempString + ch.ToString()
                     elif ch='"' then
@@ -60,6 +71,9 @@ let main argv =
                              stringFlag<-true
                              //tempString<-tempString
                     
+                    //check comments
+                    elif ch == '/' then
+                        startCommentFlag <- true
                     //check if symbol     
                     elif List.exists(fun elem->elem=string(ch))symbols then
                         if numberFlag then
@@ -86,10 +100,10 @@ let main argv =
                     elif List.exists(fun elem->elem=string(ch))keywords then
                          _zz.Add(XElement(XName.Get("keyword"),ch))
            
-           elif startEndCommentFlag == true && ch == '/' then
-                
+           elif endBlockCommentFlag == true && ch == '/' then
+                blockCommentFlag <- false
            elif ch = '*'
-               startEndCommentFlag <- true 
+               endBlockCommentFlag <- true 
             
            
             
