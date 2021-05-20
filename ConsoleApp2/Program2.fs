@@ -22,6 +22,8 @@ let isDigit(ch)=
     else
         false
 
+
+
 [<EntryPoint>]
 let main argv =
     let symbols=["(";")";"{";"}";"[";"]";",";".";";";"+";"-";"*";"/";"=";"<";">";"~";"|";"&"]
@@ -39,29 +41,78 @@ let main argv =
     let mutable endBlockCommentFlag = false
     let mutable startCommentFlag = false
     
+    let mutable tempString=""
+    let mutable stringFlag=false
+    let mutable tempNumber=""
+    let mutable numberFlag=false
+    let mutable lineCommentFlag=false
+    let mutable tempWord=""
+
+    let func(ch)=
+        if stringFlag && ch <> '"' then
+             tempString <- tempString + ch.ToString()
+        elif ch='"' then
+             if stringFlag then
+                 _zz.Add(XElement(XName.Get("stringConstant"),tempString))
+                 tempString<-""
+             else
+                 stringFlag<-true
+                 //tempString<-tempString
+        
+        //check comments
+        elif ch = '/' then
+            startCommentFlag <- true
+        //check if symbol     
+        elif List.exists(fun elem->elem=string(ch))symbols then
+            if numberFlag then
+                 _zz.Add(XElement(XName.Get("integerConstant"),tempNumber))
+                 numberFlag<-false
+                 tempNumber<-""
+            _zz.Add(XElement(XName.Get("symbol"),ch))
+         
+         //check if int
+         //if the number is 0
+        elif ch='0' then
+             (_zz.Add(XElement(XName.Get("integerConstant"),"0")))
+         
+         //another numbers
+        elif isNumber(ch) then
+             tempNumber<-""+string(ch)
+             numberFlag<-true
+                
+        //check if keyboard
+        elif List.exists(fun elem->elem=string(ch))keywords then
+             _zz.Add(XElement(XName.Get("keyword"),ch))
+
+
     for line in file do
-        let mutable tempString=""
-        let mutable stringFlag=false
-        let mutable tempNumber=""
-        let mutable numberFlag=false
-        let mutable lineCommentFlag=false
+        tempString<-""
+        stringFlag<-false
+        tempNumber<-""
+        numberFlag<-false
+        lineCommentFlag<-false
+        tempWord<-""
+
         //let mutable startCommentFlag=false
 
         for ch in line.ToCharArray() do
            
            if not blockCommentFlag then
                if not lineCommentFlag  then
-                
-                    if startCommentFlag && (ch == '*' || ch == '/') then
-                        if ch == '*' then
+                    if startCommentFlag then
+                        if ch = '*' then
                             blockCommentFlag <- true
-                        elif ch == '/' then
+                            startCommentFlag<-false //update Michael
+                        elif ch = '/' then
                             lineCommentFlag <- true
+                            startCommentFlag<-false //update Michael
                         else 
                             startCommentFlag <- false
-                            _zz.Add(XElement(XName.Get("symbol"),ch))
-
-                    if stringFlag && ch <> '"' then
+                            _zz.Add(XElement(XName.Get("symbol"),'/'))
+                            func(ch)
+                    else
+                        func(ch)
+                    (*if stringFlag && ch <> '"' then
                          tempString <- tempString + ch.ToString()
                     elif ch='"' then
                          if stringFlag then
@@ -92,22 +143,14 @@ let main argv =
                          tempNumber<-""+string(ch)
                          numberFlag<-true
                 
-
-                     
-                    
-                
                     //check if keyboard
                     elif List.exists(fun elem->elem=string(ch))keywords then
-                         _zz.Add(XElement(XName.Get("keyword"),ch))
-           
-           elif endBlockCommentFlag == true && ch == '/' then
+                         _zz.Add(XElement(XName.Get("keyword"),ch))*)
+           elif endBlockCommentFlag && ch = '/' then
                 blockCommentFlag <- false
-           elif ch = '*'
+           elif ch = '*' then
                endBlockCommentFlag <- true 
-            
-           
-            
-    
+
     let doc=XDocument()
     doc.Add(_zz)
     doc.Save("C:/Users/user/Downloads/check1.xml")
