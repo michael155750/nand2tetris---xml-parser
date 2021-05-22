@@ -6,6 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="parser.fs" />
+    <Compile Include="tokenizer.fs" />
     <Compile Include="Program2.fs" />
   </ItemGroup>
 
