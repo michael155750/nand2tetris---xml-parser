@@ -9,13 +9,13 @@ open System.Xml.Linq
 open System.IO
 
 
-let isNumber(ch)=
+let private isNumber(ch)=
     let numbers=['1';'2';'3';'4';'5';'6';'7';'8';'9']
     if List.exists(fun elem->elem=ch)numbers then
         true
     else
         false
-let isDigit(ch)=
+let private isDigit(ch)=
     let digits=['1';'2';'3';'4';'5';'6';'7';'8';'9';'0']
     if List.exists(fun elem->elem=ch)digits then
         true
@@ -27,9 +27,8 @@ let keywords=["class";"constructor";"function";"method";"field";"static";"var";"
               "boolean";"void";"true";"false";"null";"this";"let";"do";"if";"else";"while";"return"]
 
 
-let tokenizer = 
-    Console.WriteLine("Please enter the path:")
-    let path = Console.ReadLine()
+let tokenizer path = 
+    
     let filesList = Directory.GetFiles(path,"*.jack")
      
     
@@ -40,7 +39,7 @@ let tokenizer =
         if File.Exists(path2) then
             File.Delete(path2)
 
-        let _zz=XElement(XName.Get("tokens"));
+        let _zz=XElement(XName.Get("tokens"))
         let file=File.ReadLines(f) 
         
         
