@@ -8,7 +8,15 @@ open System.IO
 
 let private subroutineDec (en:byref<Collections.Generic.IEnumerator<XElement>>)= null
 
-let private classVarDec (en:byref<Collections.Generic.IEnumerator<XElement>>)= null
+let private classVarDec (en:byref<Collections.Generic.IEnumerator<XElement>>)= 
+    let mutable varEl=new XElement(XName.Get("classVarDec"))
+    while not(en.Current.Value=";") do
+        varEl.Add(en.Current)
+        en.MoveNext()|>ignore
+    varEl.Add(en.Current)
+    en.MoveNext()|>ignore
+    varEl
+    
 
 let private classParse (rootEl:XElement) (en:byref<Collections.Generic.IEnumerator<XElement>>) =
     
@@ -21,9 +29,9 @@ let private classParse (rootEl:XElement) (en:byref<Collections.Generic.IEnumerat
         if i < 3 then
             classEl.Add(en.Current)
         elif i >= 3 then
-            while (en.Current.Value = "static") || (en.Current.Value = "field") do
+            while (en.Current.Value.Equals("static")) || (en.Current.Value.Equals("field")) do
                 classEl.Add(classVarDec &en)
-            while (en.Current.Value = "constructor") || (en.Current.Value = "function") || (en.Current.Value = "method") do
+            while en.Current.Value.Equals("constructor") || (en.Current.Value.Equals("function")) || (en.Current.Value.Equals("method")) do
                 classEl.Add(subroutineDec &en)
             else
                 classEl.Add(en.Current)
