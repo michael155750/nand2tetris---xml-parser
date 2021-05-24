@@ -28,6 +28,7 @@ let private classParse (rootEl:XElement) (en:Collections.Generic.IEnumerator<XEl
             || (en.Current.Value = "method") do
                 classEl.Add(subroutineDec rootEl en)
         i <- i + 1
+    classEl
     ////////////////
     for el in rootEl.Elements() do
         if i < 3 then
