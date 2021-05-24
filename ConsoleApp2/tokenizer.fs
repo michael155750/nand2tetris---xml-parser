@@ -27,7 +27,7 @@ let keywords=["class";"constructor";"function";"method";"field";"static";"var";"
               "boolean";"void";"true";"false";"null";"this";"let";"do";"if";"else";"while";"return"]
 
 
-let tokenizer path = 
+let tokenizerMain path = 
     
     let filesList = Directory.GetFiles(path,"*.jack")
      
@@ -94,7 +94,10 @@ let tokenizer path =
              //check if int
              //if the number is 0
             elif ch='0' then
-                 (_zz.Add(XElement(XName.Get("integerConstant"),"0")))
+                if not numberFlag then
+                    (_zz.Add(XElement(XName.Get("integerConstant"),"0")))
+                else 
+                    tempNumber <- tempNumber + "0"
              
              //another numbers
             elif isNumber(ch) then
@@ -141,8 +144,11 @@ let tokenizer path =
                         else
                             func(ch)
                         
-               elif endBlockCommentFlag && ch = '/' then
-                    blockCommentFlag <- false
+               elif endBlockCommentFlag then
+                    if ch = '/' then
+                        blockCommentFlag <- false
+                    else 
+                        endBlockCommentFlag <- false
                elif ch = '*' then
                    endBlockCommentFlag <- true 
 

@@ -6,13 +6,9 @@ open System
 let main argv =
     Console.WriteLine("Please enter the path:")
     let path = Console.ReadLine()
-    tokenizer path
+    tokenizerMain path
     
-
-    
-    
-    
-    
+    //parserMain path
     
     0 // return an integer exit code
 

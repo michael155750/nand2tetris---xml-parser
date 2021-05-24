@@ -6,7 +6,7 @@ open System.Xml.Linq
 
 open System.IO
 
-let classParse (rootEl:XElement) =
+let private classParse (rootEl:XElement) =
     let mutable classVarDecF = false
     let mutable subroutineDecF = false
     let mutable i = 0
@@ -26,4 +26,5 @@ let parserMain path =
         if File.Exists(path2) then
             File.Delete(path2)
         let mutable el = XElement.Load(path)
-        //el.Elemeny("tokens")).SetValue("class")
+        el.Name <- XName.Get("class")
+        classParse el
