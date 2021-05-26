@@ -8,21 +8,22 @@ open System.IO
 
 let private varDec (en:byref<Collections.Generic.IEnumerator<XElement>>)=
     let varDecEl=new XElement(XName.Get("varDec"))
-    varDecEl.Add(en.Current);
-    en.MoveNext|>ignore
     while not(en.Current.Value.Replace(" ","").Equals(";")) do
         varDecEl.Add(en.Current)
         en.MoveNext()|>ignore
     varDecEl.Add(en.Current)
+    en.MoveNext()|>ignore
     varDecEl
 
 let private subroutineBody (en:byref<Collections.Generic.IEnumerator<XElement>>)=
     let subroutineBodyEl=new XElement(XName.Get("subroutineBody"))
     subroutineBodyEl.Add(en.Current) //add {
-    en.MoveNext|>ignore
-    while (en.Current.Value.Replace(" ","").Equals("static"))  do
+    en.MoveNext()|>ignore
+    while (en.Current.Value.Replace(" ","").Equals("var"))  do
         subroutineBodyEl.Add(varDec &en)
     subroutineBodyEl.Add(statements &en)
+    subroutineBodyEl.Add(en.Current) //add }
+    en.MoveNext()|>ignore
     subroutineBodyEl
      
 let private parameterList (en:byref<Collections.Generic.IEnumerator<XElement>>)=
@@ -30,7 +31,7 @@ let private parameterList (en:byref<Collections.Generic.IEnumerator<XElement>>)=
     while not (en.Current.Value.Replace(" ","").Equals(")")) do
         parameterListEl.Add(en.Current)
         en.MoveNext()|>ignore
-    0
+    parameterListEl
 
 let private subroutineDec (en:byref<Collections.Generic.IEnumerator<XElement>>)=
     
@@ -47,7 +48,7 @@ let private subroutineDec (en:byref<Collections.Generic.IEnumerator<XElement>>)=
     subEl.Add(en.Current)//add ')'
     en.MoveNext()|>ignore
     subEl.Add(subroutineBody &en)
-    0
+    subEl
 
 let private classVarDec (en:byref<Collections.Generic.IEnumerator<XElement>>)= 
     let mutable varEl=new XElement(XName.Get("classVarDec"))
@@ -67,17 +68,17 @@ let private classParse (rootEl:XElement) (en:byref<Collections.Generic.IEnumerat
    
     
     while en.MoveNext() do
-        if i < 3 then
+        if i < 3  then
             classEl.Add(en.Current)
         elif i >= 3 then
             while (en.Current.Value.Replace(" ","").Equals("static")) || (en.Current.Value.Replace(" ","").Equals("field")) do
                 classEl.Add(classVarDec &en)
             while en.Current.Value.Replace(" ","").Equals("constructor") || (en.Current.Value.Replace(" ","").Equals("function")) || (en.Current.Value.Replace(" ","").Equals("method")) do
                 classEl.Add(subroutineDec &en)
-            else
-                classEl.Add(en.Current)
+        
         i <- i + 1
-    
+    classEl.Add(en.Current)
+    classEl    
     
 
 let parserMain path = 
@@ -90,6 +91,10 @@ let parserMain path =
         let mutable el = XElement.Load(f)
         //el.Name <- XName.Get("class")
         
-        let mutable en =  el.Elements().GetEnumerator()
+        let mutable en = el.Elements().GetEnumerator()
         
-        classParse el &en
+        let result = classParse el &en
+
+        let doc=XDocument()
+        doc.Add(result)
+        doc.Save(path2)
