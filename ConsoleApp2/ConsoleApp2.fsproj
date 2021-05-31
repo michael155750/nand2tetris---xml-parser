@@ -6,10 +6,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="File1.fs" />
-    <Compile Include="Expressions.fs" />
-    <Compile Include="Statements.fs" />
-    <Compile Include="parser.fs" />
+    <Compile Include="symbolClassDef.fs" />
+    <Compile Include="ex5_Expressions.fs" />
+    <Compile Include="ex5_Statements.fs" />
+    <Compile Include="ex5_parser.fs" />
+    <Compile Include="ex4_Expressions.fs" />
+    <Compile Include="ex4_Statements.fs" />
+    <Compile Include="ex4_parser.fs" />
     <Compile Include="tokenizer.fs" />
     <Compile Include="Program2.fs" />
   </ItemGroup>
