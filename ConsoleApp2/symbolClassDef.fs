@@ -13,8 +13,10 @@ module symbolClassDef =
         }
 
     //class represents symbol table
-    type symbolTable() = class 
-    
+    type symbolTable(name1) = class 
+        
+         
+        member _.name with get() = name1
         member _.data = new List<tableRaw>()
         
         //clear the table
@@ -42,4 +44,4 @@ module symbolClassDef =
             this.data.FindIndex(fun el->el.name = name)
     end
 
-    let mutable methodTable = symbolTable()
+    let mutable methodTable = symbolTable("methodTable")

@@ -4,9 +4,11 @@ module parser =
 
     open System
     open System.Xml.Linq
-
+    open System.Collections.Generic
     open System.IO
 
+    let classTables = new HashSet<symbolTable>()
+    
     let private varDec (en:byref<Collections.Generic.IEnumerator<XElement>>)=
         let varDecEl=new XElement(XName.Get("varDec"))
         while not(en.Current.Value.Replace(" ","").Equals(";")) do
@@ -69,8 +71,15 @@ module parser =
    
     
         while en.MoveNext() do
-            if i < 3  then
+            if i = 0  then
                 classEl.Add(en.Current)
+            elif i = 1 then
+                let name = en.Current.Value
+                classTables.Add(new symbolTable((*name*)))|>ignore
+                classEl.Add(en.Current)
+            elif i = 2 then
+                classEl.Add(en.Current)
+                
             elif i >= 3 then
                 while (en.Current.Value.Replace(" ","").Equals("static")) || (en.Current.Value.Replace(" ","").Equals("field")) do
                     classEl.Add(classVarDec &en)
