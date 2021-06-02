@@ -4,10 +4,19 @@ module rec Statements =
 
     open System
     open System.Xml.Linq
+    open System.IO
+
+    //temp
+    let f = File.CreateText("a.txt")
 
     
 
     let statementsWords = ["let";"if";"while";"do";"return"]
+
+    
+
+            
+       
 
     let letStatement (en:byref<Collections.Generic.IEnumerator<XElement>>)=
         let mutable el = XElement(XName.Get("letStatement"))
@@ -33,12 +42,17 @@ module rec Statements =
             en.MoveNext()|>ignore
     
         el.Add(expression &en)
+        f.WriteLine("if-goto IF_TRUE"+ ifIndex.ToString())
+        f.WriteLine("goto IF_FALSE"+ ifIndex.ToString())
+        f.WriteLine("label IF_TRUE"+ ifIndex.ToString())
         for i=1 to 2 do
             el.Add(en.Current)
             en.MoveNext()|>ignore
         el.Add(statements &en)
         el.Add(en.Current)
         en.MoveNext()|>ignore
+        f.WriteLine("goto IF_END"+ ifIndex.ToString())
+        f.WriteLine("label IF_FALSE"+ ifIndex.ToString())
 
         if en.Current.Value.Replace(" ","").Equals("else") then
             for i=1 to 2 do
@@ -47,25 +61,35 @@ module rec Statements =
             el.Add(statements &en)
             el.Add(en.Current)
             en.MoveNext()|>ignore
-          
-    
+        f.WriteLine("label IF_END"+ ifIndex.ToString())
+        ifIndex <- ifIndex + 1
         el
 
     let whileStatement (en:byref<Collections.Generic.IEnumerator<XElement>>)=
         let mutable el = XElement(XName.Get("whileStatement"))
-        let mutable i = 0
-        while en.Current.Value.Replace(" ","") <> "}" do
-            if i < 2 || i = 3 || i = 4  then
-                el.Add(en.Current)
-                en.MoveNext()|>ignore
-            elif i = 2  then
-                 el.Add(expression &en)
-            elif i = 5  then
-                 el.Add(statements &en)
-            i <- i + 1
         
         el.Add(en.Current)
         en.MoveNext()|>ignore
+  
+        el.Add(en.Current)
+        en.MoveNext()|>ignore
+        f.WriteLine("WHILE_EXP"+ whileIndex.ToString())
+        
+        el.Add(expression &en)
+        el.Add(en.Current)
+        en.MoveNext()|>ignore
+        el.Add(en.Current)
+        en.MoveNext()|>ignore
+        f.WriteLine("not")
+        f.WriteLine("if-goto WHILE_END"+ whileIndex.ToString())
+        el.Add(statements &en)
+        f.WriteLine("goto WHILE_EXP"+ whileIndex.ToString())
+        f.WriteLine("label WHILE_END"+ whileIndex.ToString())
+        
+        el.Add(en.Current)
+        en.MoveNext()|>ignore
+        
+        whileIndex <-whileIndex + 1
         el
 
     let doStatement (en:byref<Collections.Generic.IEnumerator<XElement>>)=

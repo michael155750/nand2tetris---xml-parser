@@ -45,3 +45,5 @@ module symbolClassDef =
     end
 
     let mutable methodTable = symbolTable("methodTable")
+
+    

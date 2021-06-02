@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="indexes.fs" />
     <Compile Include="symbolClassDef.fs" />
     <Compile Include="ex5_Expressions.fs" />
     <Compile Include="ex5_Statements.fs" />
