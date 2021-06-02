@@ -9,12 +9,12 @@ module symbolClassDef =
          mutable name:string
          mutable m_type:string
          mutable kind:string
-
+         mutable index:int
         }
 
     //class represents symbol table
     type symbolTable(name1) = class 
-        
+       
          
         member _.name with get() = name1
         member _.data = new List<tableRaw>()
@@ -24,8 +24,8 @@ module symbolClassDef =
             this.data.Clear
     
         //insert new row to the table
-        member this.define name t kind = 
-            this.data.Add({name = name; m_type = t; kind = kind})
+        member this.define name t kind i = 
+            this.data.Add({name = name; m_type = t; kind = kind;index=i})
 
         //find the number elements in the table from certian kind
         member this.varCount kind = 
@@ -42,6 +42,17 @@ module symbolClassDef =
         //returns the index by name
         member this.indexOf name = 
             this.data.FindIndex(fun el->el.name = name)
+        
+        member this.getTheBigIndexOfStatic =
+            0
+
+        member this.getTheBigIndexOf sort =
+            if sort="static" then
+                null
+            
+                null
+            
+            
     end
 
     let mutable methodTable = symbolTable("methodTable")

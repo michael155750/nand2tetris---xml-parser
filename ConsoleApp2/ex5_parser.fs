@@ -7,7 +7,7 @@ module parser =
     open System.Collections.Generic
     open System.IO
 
-    let classTables = new HashSet<symbolTable>()
+    let mutable classTables:Map<String,symbolTable> =Map.empty
     
     let private varDec (en:byref<Collections.Generic.IEnumerator<XElement>>)=
         let varDecEl=new XElement(XName.Get("varDec"))
@@ -53,12 +53,23 @@ module parser =
         subEl.Add(subroutineBody &en)
         subEl
 
-    let private classVarDec (en:byref<Collections.Generic.IEnumerator<XElement>>)= 
+    let private classVarDec (en:byref<Collections.Generic.IEnumerator<XElement>>) className= 
         let mutable varEl=new XElement(XName.Get("classVarDec"))
+        varEl.Add(en.Current) //add the sort of the fields 'static' or 'field'
+        let varSort=en.Current.Value
+        en.MoveNext()|>ignore
+        varEl.Add(en.Current) //add the type of the fields 'int' or 'String' etc.
+        let varType=en.Current.Value
+        en.MoveNext()|>ignore
+        let mutable isVariable=true
         while not(en.Current.Value.Replace(" ","").Equals(";")) do
-            varEl.Add(en.Current)
+            varEl.Add(en.Current) //add the name of variable or ','
+            isVariable<-not isVariable
+            if isVariable then
+                let index=classTables.[className].getTheBigIndexOf sort
+                (classTables.[className]).define en.Current.Value varType varSort index+1
             en.MoveNext()|>ignore
-        varEl.Add(en.Current)
+        varEl.Add(en.Current)//add ';'
         en.MoveNext()|>ignore
         varEl
 
@@ -71,18 +82,20 @@ module parser =
    
     
         while en.MoveNext() do
-            if i = 0  then
+            let mutable className=""
+            if i = 0  then  // add the word 'class'
                 classEl.Add(en.Current)
-            elif i = 1 then
-                let name = en.Current.Value
-                classTables.Add(new symbolTable((*name*)))|>ignore
-                classEl.Add(en.Current)
+            elif i = 1 then //add the name of the class
+                className<-(en.Current.Value) 
+                //todo: check the name of the classTable
+                classTables<-classTables.Add(className,new symbolTable(en.Current.Value)) //create the symbol table
+                classEl.Add(en.Current) 
             elif i = 2 then
                 classEl.Add(en.Current)
                 
             elif i >= 3 then
                 while (en.Current.Value.Replace(" ","").Equals("static")) || (en.Current.Value.Replace(" ","").Equals("field")) do
-                    classEl.Add(classVarDec &en)
+                    classEl.Add(classVarDec &en className)
                 while en.Current.Value.Replace(" ","").Equals("constructor") || (en.Current.Value.Replace(" ","").Equals("function")) || (en.Current.Value.Replace(" ","").Equals("method")) do
                     classEl.Add(subroutineDec &en)
         
