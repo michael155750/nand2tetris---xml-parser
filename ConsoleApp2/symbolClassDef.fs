@@ -15,6 +15,10 @@ module symbolClassDef =
     //class represents symbol table
     type symbolTable(name1) = class 
        
+        let mutable fieldIndex = 0 
+        let mutable staticIndex = 0 
+        let mutable argIndex = 0 
+        let mutable localIndex = 0 
          
         member _.name with get() = name1
         member _.data = new List<tableRaw>()
@@ -25,7 +29,19 @@ module symbolClassDef =
     
         //insert new row to the table
         member this.define name t kind = 
-            this.data.Add({name = name; m_type = t; kind = kind;index=0})//TODO: handling insexses
+            let mutable index = 0
+            match kind with
+            |"static"->index <- staticIndex
+            |"field"->index <- fieldIndex
+            |"argument"->index <- argIndex
+            |_->index <- localIndex
+            this.data.Add({name = name; m_type = t; kind = kind;index=index})
+
+            match kind with
+            |"static"->staticIndex <- staticIndex + 1
+            |"field"->fieldIndex <- fieldIndex + 1
+            |"argument"->argIndex <- argIndex + 1
+            |_->localIndex <- localIndex + 1
 
         //find the number elements in the table from certian kind
         member this.varCount kind = 
