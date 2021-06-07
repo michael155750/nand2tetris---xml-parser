@@ -25,7 +25,9 @@ module symbolClassDef =
         
         //clear the table
         member this.startSubroutine = 
-            this.data.Clear
+            this.data.Clear|>ignore //reset all records
+            argIndex<-0//reset counters of index
+            localIndex<-0
     
         //insert new row to the table
         member this.define name t kind = 
@@ -59,15 +61,6 @@ module symbolClassDef =
         member this.indexOf name = 
             this.data.FindIndex(fun el->el.name = name)
             //TODO: if not found return false 
-        
-        member this.getTheBigIndexOfStatic =
-            0
-
-        member this.getTheBigIndexOf sort =
-            if sort="static" then
-                null
-            
-                null
             
             
     end

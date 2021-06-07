@@ -30,16 +30,21 @@ module parser =
         en.MoveNext()|>ignore
         subroutineBodyEl
      
-    let private parameterList (en:byref<Collections.Generic.IEnumerator<XElement>>)=
+    let private parameterList (en:byref<Collections.Generic.IEnumerator<XElement>> )=
         let parameterListEl=new XElement(XName.Get("parameterList"))
+        
+        en.MoveNext()|>ignore
         while not (en.Current.Value.Replace(" ","").Equals(")")) do
-            parameterListEl.Add(en.Current)
+            parameterListEl.Add(en.Current)//add type
+            en.MoveNext()|>ignore
+            parameterListEl.Add(en.Current)//add varName
             en.MoveNext()|>ignore
         parameterListEl
 
     let private subroutineDec (en:byref<Collections.Generic.IEnumerator<XElement>>)=
     
         let mutable subEl = XElement(XName.Get("subroutineDec"))
+        classTables.["methodTable"].startSubroutine|>ignore //clear the method table
         subEl.Add(en.Current)//add the word function/method /constructor
         en.MoveNext()|>ignore
         subEl.Add(en.Current)//add void/type
