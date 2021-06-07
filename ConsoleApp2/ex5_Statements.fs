@@ -6,8 +6,7 @@ module rec Statements =
     open System.Xml.Linq
     open System.IO
 
-    //temp
-    let f = File.CreateText("a.txt")
+    
 
     
 

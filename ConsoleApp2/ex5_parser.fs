@@ -10,7 +10,7 @@ module parser =
     //TODO: change to list
     let mutable classTables:Map<String,symbolTable> =Map.empty
     
-    let private varDec (en:byref<Collections.Generic.IEnumerator<XElement>>)=
+    let private varDec (en:byref<Collections.Generic.IEnumerator<XElement>>) =
         let varDecEl=new XElement(XName.Get("varDec"))
         while not(en.Current.Value.Replace(" ","").Equals(";")) do
             varDecEl.Add(en.Current) //add 'var'
@@ -29,18 +29,18 @@ module parser =
         en.MoveNext()|>ignore
         varDecEl
 
-    let private subroutineBody (en:byref<Collections.Generic.IEnumerator<XElement>>)=
+    let private subroutineBody (en:byref<Collections.Generic.IEnumerator<XElement>>) (f:StreamWriter) (className:string)=
         let subroutineBodyEl=new XElement(XName.Get("subroutineBody"))
         subroutineBodyEl.Add(en.Current) //add {
         en.MoveNext()|>ignore
         while (en.Current.Value.Replace(" ","").Equals("var"))  do
             subroutineBodyEl.Add(varDec &en)
-        subroutineBodyEl.Add(statements &en)
+        subroutineBodyEl.Add(statements &en f className )
         subroutineBodyEl.Add(en.Current) //add }
         en.MoveNext()|>ignore
         subroutineBodyEl
      
-    let private parameterList (en:byref<Collections.Generic.IEnumerator<XElement>> )=
+    let private parameterList (en:byref<Collections.Generic.IEnumerator<XElement>> ) =
         let parameterListEl=new XElement(XName.Get("parameterList"))
         
         en.MoveNext()|>ignore
@@ -57,7 +57,7 @@ module parser =
                 en.MoveNext()|>ignore
         parameterListEl
 
-    let private subroutineDec (en:byref<Collections.Generic.IEnumerator<XElement>>)=
+    let private subroutineDec (en:byref<Collections.Generic.IEnumerator<XElement>>) (f:StreamWriter) (className:string)=
     
         let mutable subEl = XElement(XName.Get("subroutineDec"))
         methodTable.startSubroutine|>ignore //clear the method table
@@ -72,10 +72,10 @@ module parser =
         subEl.Add(parameterList &en)//add parameterList
         subEl.Add(en.Current)//add ')'
         en.MoveNext()|>ignore
-        subEl.Add(subroutineBody &en)
+        subEl.Add(subroutineBody &en f className)
         subEl
 
-    let private classVarDec (en:byref<Collections.Generic.IEnumerator<XElement>>) className= 
+    let private classVarDec (en:byref<Collections.Generic.IEnumerator<XElement>>) (className:string) = 
         let mutable varEl=new XElement(XName.Get("classVarDec"))
         varEl.Add(en.Current) //add the sort of the fields 'static' or 'field'
         let varKind=en.Current.Value
@@ -95,7 +95,7 @@ module parser =
         varEl
 
 
-    let private classParse (rootEl:XElement) (en:byref<Collections.Generic.IEnumerator<XElement>>) =
+    let private classParse (rootEl:XElement) (en:byref<Collections.Generic.IEnumerator<XElement>>) (f:StreamWriter) =
     
     
         let mutable i = 0
@@ -118,7 +118,7 @@ module parser =
                 while (en.Current.Value.Replace(" ","").Equals("static")) || (en.Current.Value.Replace(" ","").Equals("field")) do
                     classEl.Add(classVarDec &en className)
                 while en.Current.Value.Replace(" ","").Equals("constructor") || (en.Current.Value.Replace(" ","").Equals("function")) || (en.Current.Value.Replace(" ","").Equals("method")) do
-                    classEl.Add(subroutineDec &en)
+                    classEl.Add(subroutineDec &en f className)
         
             i <- i + 1
         classEl.Add(en.Current)
@@ -134,11 +134,12 @@ module parser =
                 File.Delete(path2)
             let mutable el = XElement.Load(f)
             
+            let vmf = File.CreateText(path + "\\" + name.[0..name.Length - 2] + ".vm") 
         
             let mutable en = el.Elements().GetEnumerator()
         
-            let result = classParse el &en
-
+            let result = classParse el &en vmf
+            vmf.Close() 
             let doc=XDocument()
             doc.Add(result)
             doc.Save(path2)
