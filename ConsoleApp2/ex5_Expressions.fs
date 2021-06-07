@@ -23,7 +23,7 @@ module rec Expressions =
             |">"->"gt"
             |_->"eq"
 
-    let expressionList (en:byref<Collections.Generic.IEnumerator<XElement>>) (f:StreamWriter) (className:string): XElement=
+    let expressionList (en:byref<Collections.Generic.IEnumerator<XElement>>) (f:StreamWriter) (className:string) (expNum:byref<int>): XElement=
         let mutable el = XElement(XName.Get("expressionList"))
         let mutable flag = false
 
@@ -33,8 +33,10 @@ module rec Expressions =
                 if flag then
                     el.Add(en.Current)
                     en.MoveNext()|>ignore
+                   
 
                 el.Add(expression &en f className)
+                expNum <- expNum + 1
                 flag <- true
             
         el
@@ -42,21 +44,28 @@ module rec Expressions =
     let subroutineCall (prev:XElement) (en:byref<Collections.Generic.IEnumerator<XElement>>) (f:StreamWriter) (className:string): XElement=
         let mutable el = XElement(XName.Get("subroutineCall"))
         el.Add(prev)
+        let mutable exspNum = 0
 
         //(expressionList)
         if en.Current.Value.Replace(" ","").Equals("(") then
             el.Add(en.Current)
             en.MoveNext()|>ignore
-            el.Add(expressionList &en f className)
+            el.Add(expressionList &en f className &exspNum)
             el.Add(en.Current)
             en.MoveNext()|>ignore
+            f.WriteLine("call " + className + "." + prev.Value.Replace(" ","") + " " + exspNum.ToString())
         else
-            for i = 1 to 3 do
-                el.Add(en.Current)
-                en.MoveNext()|>ignore
+            
+            el.Add(en.Current)
+            en.MoveNext()|>ignore
+            el.Add(en.Current)
+            let name = en.Current.Value.Replace(" ","")
+            en.MoveNext()|>ignore
+            el.Add(en.Current)
+            en.MoveNext()|>ignore
     
-            el.Add(expressionList &en f className)
-        
+            el.Add(expressionList &en f className &exspNum)
+            f.WriteLine("call " + prev.Value.Replace(" ","") + "." + name + " " + exspNum.ToString())
             el.Add(en.Current)
             en.MoveNext()|>ignore
 
