@@ -7,6 +7,7 @@ module parser =
     open System.Collections.Generic
     open System.IO
 
+    //TODO: change to list
     let mutable classTables:Map<String,symbolTable> =Map.empty
     
     let private varDec (en:byref<Collections.Generic.IEnumerator<XElement>>)=
@@ -56,7 +57,7 @@ module parser =
     let private classVarDec (en:byref<Collections.Generic.IEnumerator<XElement>>) className= 
         let mutable varEl=new XElement(XName.Get("classVarDec"))
         varEl.Add(en.Current) //add the sort of the fields 'static' or 'field'
-        let varSort=en.Current.Value
+        let varKind=en.Current.Value
         en.MoveNext()|>ignore
         varEl.Add(en.Current) //add the type of the fields 'int' or 'String' etc.
         let varType=en.Current.Value
@@ -66,8 +67,7 @@ module parser =
             varEl.Add(en.Current) //add the name of variable or ','
             isVariable<-not isVariable
             if isVariable then
-                let index=classTables.[className].getTheBigIndexOf sort
-                (classTables.[className]).define en.Current.Value varType varSort index+1
+                (classTables.[className]).define en.Current.Value varType varKind 
             en.MoveNext()|>ignore
         varEl.Add(en.Current)//add ';'
         en.MoveNext()|>ignore
@@ -87,7 +87,7 @@ module parser =
                 classEl.Add(en.Current)
             elif i = 1 then //add the name of the class
                 className<-(en.Current.Value) 
-                //todo: check the name of the classTable
+                
                 classTables<-classTables.Add(className,new symbolTable(en.Current.Value)) //create the symbol table
                 classEl.Add(en.Current) 
             elif i = 2 then

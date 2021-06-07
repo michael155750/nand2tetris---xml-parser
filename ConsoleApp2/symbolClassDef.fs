@@ -24,8 +24,8 @@ module symbolClassDef =
             this.data.Clear
     
         //insert new row to the table
-        member this.define name t kind i = 
-            this.data.Add({name = name; m_type = t; kind = kind;index=i})
+        member this.define name t kind = 
+            this.data.Add({name = name; m_type = t; kind = kind;index=0})//TODO: handling insexses
 
         //find the number elements in the table from certian kind
         member this.varCount kind = 
@@ -42,6 +42,7 @@ module symbolClassDef =
         //returns the index by name
         member this.indexOf name = 
             this.data.FindIndex(fun el->el.name = name)
+            //TODO: if not found return false 
         
         member this.getTheBigIndexOfStatic =
             0

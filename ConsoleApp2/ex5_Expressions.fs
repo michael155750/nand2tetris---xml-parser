@@ -108,8 +108,8 @@ module rec Expressions =
                 elif prevValValue.Equals("true") then
                     f.WriteLine("push constant 0")
                     f.WriteLine("not")
-                elif prevValValue.Equals("this") then//TODO
-                    f.WriteLine("push this 0")//TODO
+                //elif prevValValue.Equals("this") then
+                    //f.WriteLine("push this 0")
                 
                 //stringConstant
                 elif prevValName.Equals("stringConstant") then 
@@ -121,8 +121,15 @@ module rec Expressions =
                         f.WriteLine(Convert.ToInt32(ch))
                 //varName
                 else
-                    f.Write("push this ")//TODO
-                    f.WriteLine(methodTable.indexOf(prevValValue.ToString()))//TODO
+                    f.Write("push ")//TODO
+                    if methodTable.varCount(prevValValue.ToString()) > 0 then
+                        if methodTable.kindOf(prevValValue.ToString()) = "var" then
+                            f.Write("local ")
+                            //f.WriteLine(index)
+                    
+                    
+                    //else
+                    //class table
         el
     
     let expression (en:byref<Collections.Generic.IEnumerator<XElement>>): XElement=
