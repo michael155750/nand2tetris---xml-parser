@@ -23,7 +23,7 @@ module rec Expressions =
             |">"->"gt"
             |_->"eq"
 
-    let expressionList (en:byref<Collections.Generic.IEnumerator<XElement>>): XElement=
+    let expressionList (en:byref<Collections.Generic.IEnumerator<XElement>>) (f:StreamWriter) (className:string): XElement=
         let mutable el = XElement(XName.Get("expressionList"))
         let mutable flag = false
 
@@ -34,12 +34,12 @@ module rec Expressions =
                     el.Add(en.Current)
                     en.MoveNext()|>ignore
 
-                el.Add(expression &en)
+                el.Add(expression &en f className)
                 flag <- true
             
         el
 
-    let subroutineCall (prev:XElement) (en:byref<Collections.Generic.IEnumerator<XElement>>): XElement=
+    let subroutineCall (prev:XElement) (en:byref<Collections.Generic.IEnumerator<XElement>>) (f:StreamWriter) (className:string): XElement=
         let mutable el = XElement(XName.Get("subroutineCall"))
         el.Add(prev)
 
@@ -47,7 +47,7 @@ module rec Expressions =
         if en.Current.Value.Replace(" ","").Equals("(") then
             el.Add(en.Current)
             en.MoveNext()|>ignore
-            el.Add(expressionList &en)
+            el.Add(expressionList &en f className)
             el.Add(en.Current)
             en.MoveNext()|>ignore
         else
@@ -55,14 +55,14 @@ module rec Expressions =
                 el.Add(en.Current)
                 en.MoveNext()|>ignore
     
-            el.Add(expressionList &en)
+            el.Add(expressionList &en f className)
         
             el.Add(en.Current)
             en.MoveNext()|>ignore
 
         el
 
-    let term (en:byref<Collections.Generic.IEnumerator<XElement>>): XElement=
+    let term (en:byref<Collections.Generic.IEnumerator<XElement>>) (f:StreamWriter) (className:string): XElement=
         let mutable el = XElement(XName.Get("term"))
         let mutable prevVal = en.Current
         let prevValValue = prevVal.Value.Replace(" ","")
@@ -72,20 +72,20 @@ module rec Expressions =
         // subroutineCall
         if (en.Current.Value.Replace(" ","").Equals("(") || en.Current.Value.Replace(" ","").Equals("."))
             && not (prevValName.Equals("symbol")) then
-                el.Add(subroutineCall prevVal &en)
+                el.Add(subroutineCall prevVal &en  f className)
         else 
             el.Add(prevVal)
            // unaryOp term
             if prevValValue.Equals("-")  then
-                el.Add(term &en)
+                el.Add(term &en  f className)
                 f.WriteLine("neg")
             elif  prevValValue.Equals("~") then
-                el.Add(term &en)
+                el.Add(term &en  f className)
                 f.WriteLine("not")
 
             // (expression)
             elif prevValValue.Equals("(") then            
-                el.Add(expression &en)
+                el.Add(expression &en f className)
                 el.Add(en.Current)
                 en.MoveNext()|>ignore
        
@@ -93,7 +93,7 @@ module rec Expressions =
             elif en.Current.Value.Replace(" ","").Equals("[") then
                 el.Add(en.Current)
                 en.MoveNext()|>ignore
-                el.Add(expression &en)
+                el.Add(expression &en f className)
                 el.Add(en.Current)
                 en.MoveNext()|>ignore
             
@@ -132,15 +132,15 @@ module rec Expressions =
                     //class table
         el
     
-    let expression (en:byref<Collections.Generic.IEnumerator<XElement>>): XElement=
+    let expression (en:byref<Collections.Generic.IEnumerator<XElement>>) (f:StreamWriter) (className:string): XElement =
         let mutable el = XElement(XName.Get("expression"))
-        el.Add(term &en)
+        el.Add(term &en f className)
    
         let mutable temp = en.Current.Value.Replace(" ","")
         while List.exists(fun elem-> elem = temp) opList do
            el.Add(en.Current)
            en.MoveNext()|>ignore
-           el.Add(term &en)
+           el.Add(term &en f className)
            f.WriteLine(opVMtranslator temp)
            temp <- en.Current.Value.Replace(" ","")
     
