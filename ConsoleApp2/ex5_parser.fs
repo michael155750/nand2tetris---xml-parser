@@ -13,8 +13,18 @@ module parser =
     let private varDec (en:byref<Collections.Generic.IEnumerator<XElement>>)=
         let varDecEl=new XElement(XName.Get("varDec"))
         while not(en.Current.Value.Replace(" ","").Equals(";")) do
-            varDecEl.Add(en.Current)
+            varDecEl.Add(en.Current) //add 'var'
             en.MoveNext()|>ignore
+            varDecEl.Add(en.Current) //add type
+            let varType=en.Current.Value
+            en.MoveNext()|>ignore
+            varDecEl.Add(en.Current) //add varName
+            let varName=en.Current.Value
+            methodTable.define varName varType "var"
+            en.MoveNext()|>ignore
+            if en.Current.Value.Replace(" ","").Equals(",") then
+                varDecEl.Add(en.Current) //add ','
+                en.MoveNext()|>ignore
         varDecEl.Add(en.Current)
         en.MoveNext()|>ignore
         varDecEl
@@ -36,15 +46,21 @@ module parser =
         en.MoveNext()|>ignore
         while not (en.Current.Value.Replace(" ","").Equals(")")) do
             parameterListEl.Add(en.Current)//add type
+            let varType=en.Current.Value
             en.MoveNext()|>ignore
             parameterListEl.Add(en.Current)//add varName
+            let varName=en.Current.Value
             en.MoveNext()|>ignore
+            methodTable.define varName varType "argument"
+            if (en.Current.Value.Replace(" ","").Equals(",")) then
+                parameterListEl.Add(en.Current)//add ','
+                en.MoveNext()|>ignore
         parameterListEl
 
     let private subroutineDec (en:byref<Collections.Generic.IEnumerator<XElement>>)=
     
         let mutable subEl = XElement(XName.Get("subroutineDec"))
-        classTables.["methodTable"].startSubroutine|>ignore //clear the method table
+        methodTable.startSubroutine|>ignore //clear the method table
         subEl.Add(en.Current)//add the word function/method /constructor
         en.MoveNext()|>ignore
         subEl.Add(en.Current)//add void/type
