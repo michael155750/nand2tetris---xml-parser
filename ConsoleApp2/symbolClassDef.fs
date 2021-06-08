@@ -65,7 +65,7 @@ module symbolClassDef =
         //returns the index by name
         member this.indexOf name = 
             this.data.FindIndex(fun el->el.name = name)
-            //TODO: if not found return false 
+            //TODO: if not found return false (more good return -1)
             
             
     end
@@ -74,4 +74,9 @@ module symbolClassDef =
 
     let mutable classTables:Map<String,symbolTable> =Map.empty
 
-    
+   
+            
+
+                
+        
+                

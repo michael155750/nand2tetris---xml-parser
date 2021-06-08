@@ -134,3 +134,18 @@ module rec Statements =
             temp <- en.Current.Value.Replace(" ","")
         
        el
+
+    let translateVarToVm varName className=
+           let mutable index=""
+           let mutable varType=""
+           if not (methodTable.indexOf(varName)=(-1)) then
+               index<-string:methodTable.indexOf(varName)
+               if methodTable.typeOf(varName)="var" then varType="local"
+                   else varType="argument"
+                   varType+" "+index//return value
+               else
+                   index<-string:(classTables.[className]).indexof(varName)
+                   if (classTables.[className]).typeOf(varName)="field" then varType="this"
+                   else varType="static"
+            varType+" "+index//return value
+           
