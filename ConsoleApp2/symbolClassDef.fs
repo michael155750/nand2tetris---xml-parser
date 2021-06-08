@@ -1,6 +1,7 @@
 ﻿namespace ex5
 [<AutoOpen>]
 module symbolClassDef = 
+    open System
     open System.Collections.Generic
 
     //record for a row of symbol table
@@ -46,8 +47,12 @@ module symbolClassDef =
             |_->localIndex <- localIndex + 1
 
         //find the number elements in the table from certian kind
-        member this.varCount kind = 
+        member this.varKindCount kind = 
             this.data.FindAll(fun el->el.kind = kind).Count
+
+        //find the number of elements with the name
+        member this.varCount name = 
+             this.data.FindAll(fun el->el.name = name).Count
 
         //returns the kind by name
         member this.kindOf name = 
@@ -66,5 +71,7 @@ module symbolClassDef =
     end
 
     let mutable methodTable = symbolTable("methodTable")
+
+    let mutable classTables:Map<String,symbolTable> =Map.empty
 
     

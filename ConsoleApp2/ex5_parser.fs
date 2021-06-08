@@ -7,8 +7,8 @@ module parser =
     open System.Collections.Generic
     open System.IO
 
-    //TODO: change to list
-    let mutable classTables:Map<String,symbolTable> =Map.empty
+    
+    
     
     let private varDec (en:byref<Collections.Generic.IEnumerator<XElement>>) =
         let varDecEl=new XElement(XName.Get("varDec"))
@@ -93,7 +93,7 @@ module parser =
         varEl.Add(en.Current)//add ';'
         en.MoveNext()|>ignore
         varEl
-
+        
 
     let private classParse (rootEl:XElement) (en:byref<Collections.Generic.IEnumerator<XElement>>) (f:StreamWriter) =
     

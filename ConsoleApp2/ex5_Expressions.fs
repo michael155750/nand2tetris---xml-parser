@@ -46,7 +46,7 @@ module rec Expressions =
         el.Add(prev)
         let mutable exspNum = 0
 
-        //(expressionList)
+        //subRoutinName (expressionList)
         if en.Current.Value.Replace(" ","").Equals("(") then
             el.Add(en.Current)
             en.MoveNext()|>ignore
@@ -54,6 +54,8 @@ module rec Expressions =
             el.Add(en.Current)
             en.MoveNext()|>ignore
             f.WriteLine("call " + className + "." + prev.Value.Replace(" ","") + " " + exspNum.ToString())
+            //TODO: push this in case of method
+        //className/varName.subRoutineName (expressionList)
         else
             
             el.Add(en.Current)
@@ -65,7 +67,13 @@ module rec Expressions =
             en.MoveNext()|>ignore
     
             el.Add(expressionList &en f className &exspNum)
-            f.WriteLine("call " + prev.Value.Replace(" ","") + "." + name + " " + exspNum.ToString())
+            f.Write("call ")
+            //check if it class name or instance name 
+            if methodTable.varCount(name) > 0 then//TODO: push this in case of method
+                f.Write(methodTable.typeOf(name))
+            else
+                f.Write(prev.Value.Replace(" ","") )
+            f.WriteLine("." + name + " " + exspNum.ToString())
             el.Add(en.Current)
             en.MoveNext()|>ignore
 
@@ -99,7 +107,7 @@ module rec Expressions =
                 en.MoveNext()|>ignore
        
            // varName [expression]
-            elif en.Current.Value.Replace(" ","").Equals("[") then
+            elif en.Current.Value.Replace(" ","").Equals("[") then//TODO
                 el.Add(en.Current)
                 en.MoveNext()|>ignore
                 el.Add(expression &en f className)
@@ -130,15 +138,23 @@ module rec Expressions =
                         f.WriteLine(Convert.ToInt32(ch))
                 //varName
                 else
-                    f.Write("push ")//TODO
+                    f.Write("push ")
                     if methodTable.varCount(prevValValue.ToString()) > 0 then
                         if methodTable.kindOf(prevValValue.ToString()) = "var" then
                             f.Write("local ")
-                            //f.WriteLine(index)
+          
+                        else
+                            f.Write("argument ")
+                        f.WriteLine(methodTable.indexOf(prevValValue.ToString()))
+                    else
+                        if classTables.[className].kindOf(prevValValue.ToString()) = "static" then
+                            f.Write("static ")
+          
+                        else
+                            f.Write("this ")
+                        f.WriteLine(methodTable.indexOf(prevValValue.ToString()))
                     
                     
-                    //else
-                    //class table
         el
     
     let expression (en:byref<Collections.Generic.IEnumerator<XElement>>) (f:StreamWriter) (className:string): XElement =
