@@ -19,17 +19,41 @@ module rec Statements =
 
     let letStatement (en:byref<Collections.Generic.IEnumerator<XElement>>) (f:StreamWriter) (className:string)=
         let mutable el = XElement(XName.Get("letStatement"))
-        let mutable i = 0
-        while  en.Current.Value.Replace(" ","") <> ";" do
-            if i < 3 || i = 4 || i = 5 then
-                el.Add(en.Current)
-                en.MoveNext()|>ignore 
-            elif i = 3 || i = 6 then
-                 el.Add(expression &en f className)
-            i <- i + 1
         
         el.Add(en.Current)
         en.MoveNext()|>ignore 
+        let varName = en.Current.Value.Replace(" ","")
+        el.Add(en.Current)
+        en.MoveNext()|>ignore
+        if en.Current.Value.Replace(" ","").Equals("[") then
+            el.Add(en.Current)
+            en.MoveNext()|>ignore
+            el.Add(expression &en f className)
+            el.Add(en.Current)
+            en.MoveNext()|>ignore
+        el.Add(en.Current)
+        en.MoveNext()|>ignore 
+        el.Add(expression &en f className)
+
+        el.Add(en.Current)
+        en.MoveNext()|>ignore 
+
+        //case of not array
+        f.Write("pop ")
+        if methodTable.varCount(varName) > 0 then
+            if methodTable.kindOf(varName) = "var" then
+                f.Write("local ")
+          
+            else
+                f.Write("argument ")
+            f.WriteLine(methodTable.indexOf(varName))
+        else
+            if classTables.[className].kindOf(varName) = "static" then
+                f.Write("static ")
+          
+            else
+                f.Write("this ")
+            f.WriteLine(methodTable.indexOf(varName))
         el
 
     let ifStatement (en:byref<Collections.Generic.IEnumerator<XElement>>) (f:StreamWriter) (className:string)=
