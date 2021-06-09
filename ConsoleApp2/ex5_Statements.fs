@@ -135,17 +135,22 @@ module rec Statements =
         
        el
 
-    let translateVarToVm varName className=
-           let mutable index=""
-           let mutable varType=""
-           if not (methodTable.indexOf(varName)=(-1)) then
-               index<-string:methodTable.indexOf(varName)
-               if methodTable.typeOf(varName)="var" then varType="local"
-                   else varType="argument"
-                   varType+" "+index//return value
-               else
-                   index<-string:(classTables.[className]).indexof(varName)
-                   if (classTables.[className]).typeOf(varName)="field" then varType="this"
-                   else varType="static"
-            varType+" "+index//return value
+    let translateVarToVm varName className:string=
+           let mutable index = ""
+           let mutable varType = ""
+           if  methodTable.varCount(varName) > 0 then
+               index <- methodTable.indexOf(varName).ToString()
+               if methodTable.typeOf(varName)="var" then
+                    varType <- "local"
+               else 
+                    varType <- "argument"
+                    //varType + " " + index.ToString()//return value
+                  
+           else
+               index <- classTables.[className].indexOf(varName).ToString()
+               if (classTables.[className]).typeOf(varName)="field" then
+                   varType <- "this"
+               else 
+                   varType <- "static"
+           varType+" "+index//return value
            
