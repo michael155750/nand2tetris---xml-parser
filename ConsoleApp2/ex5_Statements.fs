@@ -98,6 +98,7 @@ module rec Statements =
         let prev = en.Current
         en.MoveNext()|>ignore
         el.Add(subroutineCall prev &en f className)
+        f.WriteLine("pop temp 0")
         el.Add(en.Current)
         en.MoveNext()|>ignore
         el
@@ -108,8 +109,11 @@ module rec Statements =
         en.MoveNext()|>ignore
         if en.Current.Value.Replace(" ","") <> ";" then
             el.Add(expression &en f className)
+        else
+            f.WriteLine("push constant 0")
         el.Add(en.Current)
         en.MoveNext()|>ignore
+        f.WriteLine("return")
         el
 
     let statement (en:byref<Collections.Generic.IEnumerator<XElement>>) (f:StreamWriter) (className:string)=

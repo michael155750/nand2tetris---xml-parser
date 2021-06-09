@@ -50,11 +50,14 @@ module rec Expressions =
         if en.Current.Value.Replace(" ","").Equals("(") then
             el.Add(en.Current)
             en.MoveNext()|>ignore
+            f.WriteLine("push " + methodTable.kindOf(prev.Value.Replace(" ","")) + " " + 
+                methodTable.indexOf(prev.Value.Replace(" ","")).ToString())
+            exspNum <- 1
             el.Add(expressionList &en f className &exspNum)
             el.Add(en.Current)
             en.MoveNext()|>ignore
             f.WriteLine("call " + className + "." + prev.Value.Replace(" ","") + " " + exspNum.ToString())
-            //TODO: push this in case of method
+            
         //className/varName.subRoutineName (expressionList)
         else
             
@@ -65,11 +68,13 @@ module rec Expressions =
             en.MoveNext()|>ignore
             el.Add(en.Current)
             en.MoveNext()|>ignore
-    
+            if methodTable.varCount(name) > 0 then // push this in case of method
+                f.WriteLine("push pointer 0")
+                exspNum <- 1
             el.Add(expressionList &en f className &exspNum)
             f.Write("call ")
             //check if it class name or instance name 
-            if methodTable.varCount(name) > 0 then//TODO: push this in case of method
+            if methodTable.varCount(name) > 0 then
                 f.Write(methodTable.typeOf(name))
             else
                 f.Write(prev.Value.Replace(" ","") )
