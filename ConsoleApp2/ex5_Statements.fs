@@ -163,17 +163,17 @@ module rec Statements =
     let translateVarToVm varName className:string=
            let mutable index = ""
            let mutable varType = ""
-           if  methodTable.varCount(varName) > 0 then
-               index <- methodTable.indexOf(varName).ToString()
-               if methodTable.typeOf(varName)="var" then
+           if  Expressions.methodTable.varCount(varName) > 0 then
+               index <- Expressions.methodTable.indexOf(varName).ToString()
+               if Expressions.methodTable.typeOf(varName)="var" then
                     varType <- "local"
                else 
                     varType <- "argument"
                     //varType + " " + index.ToString()//return value
                   
            else
-               index <- classTables.[className].indexOf(varName).ToString()
-               if (classTables.[className]).typeOf(varName)="field" then
+               index <- symbolClassDef.classTables.[className].indexOf(varName).ToString()
+               if (symbolClassDef.classTables.[className]).typeOf(varName)="field" then
                    varType <- "this"
                else 
                    varType <- "static"

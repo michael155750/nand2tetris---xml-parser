@@ -22,7 +22,7 @@ module parser =
             varDecEl.Add(en.Current) //add varName
             
             let varName=en.Current.Value.Replace(" ","")
-            methodTable.define varName varType "var"
+            Expressions.methodTable.define varName varType "var"
             en.MoveNext()|>ignore
         
             if en.Current.Value.Replace(" ","").Equals(",") then
@@ -43,7 +43,7 @@ module parser =
             subroutineBodyEl.Add(varDec &en &localNum)
         f.WriteLine("function " + className + "." + funcName + " " + localNum.ToString())
         if funcKind = "constructor" then
-            f.WriteLine("push constant " + classTables.[className].varKindCount("field").ToString())
+            f.WriteLine("push constant " + symbolClassDef.classTables.[className].varKindCount("field").ToString())
             f.WriteLine("call Memory.alloc 1")
             f.WriteLine("pop pointer 0")
         elif funcKind = "method" then
@@ -65,7 +65,7 @@ module parser =
             parameterListEl.Add(en.Current)//add varName
             let varName=en.Current.Value
             en.MoveNext()|>ignore
-            methodTable.define varName varType "argument"
+            Expressions.methodTable.define varName varType "argument"
             if (en.Current.Value.Replace(" ","").Equals(",")) then
                 parameterListEl.Add(en.Current)//add ','
                 en.MoveNext()|>ignore
@@ -75,11 +75,11 @@ module parser =
     
         let mutable subEl = XElement(XName.Get("subroutineDec"))
         
-        methodTable.startSubroutine //clear the method table
+        Expressions.methodTable.startSubroutine //clear the method table
         subEl.Add(en.Current)//add the word function/method /constructor
         let funcKind =  en.Current.Value.Replace(" ","")
         if funcKind = "method" then
-            methodTable.define "this" className "argument"
+            Expressions.methodTable.define "this" className "argument"
         en.MoveNext()|>ignore
         subEl.Add(en.Current)//add void/type
         en.MoveNext()|>ignore
@@ -107,7 +107,7 @@ module parser =
             varEl.Add(en.Current) //add the name of variable or ','
             isVariable<-not isVariable
             if isVariable then
-                (classTables.[className]).define (en.Current.Value.Replace(" ","")) varType varKind 
+                (symbolClassDef.classTables.[className]).define (en.Current.Value.Replace(" ","")) varType varKind 
             en.MoveNext()|>ignore
         varEl.Add(en.Current)//add ';'
         en.MoveNext()|>ignore
@@ -119,16 +119,16 @@ module parser =
     
         let mutable i = 0
         let mutable classEl = XElement(XName.Get("class"))
-   
+        let mutable className=""
     
         while en.MoveNext() do
-            let mutable className=""
+            
             if i = 0  then  // add the word 'class'
                 classEl.Add(en.Current)
             elif i = 1 then //add the name of the class
                 className<-(en.Current.Value.Replace(" ","")) 
                 
-                classTables.Add(className,new symbolTable(en.Current.Value.Replace(" ","")))|>ignore //create the symbol table
+                symbolClassDef.classTables.Add(className,new symbolTable(en.Current.Value.Replace(" ","")))|>ignore //create the symbol table
                 classEl.Add(en.Current) 
             elif i = 2 then
                 classEl.Add(en.Current)

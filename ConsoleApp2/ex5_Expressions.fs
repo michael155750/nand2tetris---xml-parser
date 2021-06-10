@@ -180,7 +180,7 @@ module rec Expressions =
                       f.Write("argument ")
                   f.WriteLine(methodTable.indexOf(name))
               else
-                  if classTables.[className].kindOf(name) = "static" then
+                  if symbolClassDef.classTables.[className].kindOf(name) = "static" then
                       f.Write("static ")
               
                   else
