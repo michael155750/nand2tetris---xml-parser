@@ -10,7 +10,7 @@ module parser =
     
     
     
-    let private varDec (en:byref<Collections.Generic.IEnumerator<XElement>>) =
+    let private varDec (en:byref<Collections.Generic.IEnumerator<XElement>>)  (localNum:byref<int>)=
         let varDecEl=new XElement(XName.Get("varDec"))
         while not(en.Current.Value.Replace(" ","").Equals(";")) do
             varDecEl.Add(en.Current) //add 'var'
@@ -25,16 +25,27 @@ module parser =
             if en.Current.Value.Replace(" ","").Equals(",") then
                 varDecEl.Add(en.Current) //add ','
                 en.MoveNext()|>ignore
+            localNum <- localNum + 1
         varDecEl.Add(en.Current)
         en.MoveNext()|>ignore
         varDecEl
 
-    let private subroutineBody (en:byref<Collections.Generic.IEnumerator<XElement>>) (f:StreamWriter) (className:string)=
+    let private subroutineBody (en:byref<Collections.Generic.IEnumerator<XElement>>)
+        (f:StreamWriter) (className:string) (funcKind:string) (funcName:string)=
         let subroutineBodyEl=new XElement(XName.Get("subroutineBody"))
         subroutineBodyEl.Add(en.Current) //add {
         en.MoveNext()|>ignore
+        let mutable localNum = 0
         while (en.Current.Value.Replace(" ","").Equals("var"))  do
-            subroutineBodyEl.Add(varDec &en)
+            subroutineBodyEl.Add(varDec &en &localNum)
+        f.WriteLine("function " + className + "." + funcName + " " + localNum.ToString())
+        if funcKind = "constructor" then
+            f.WriteLine("push constant " + classTables.[className].varKindCount("field").ToString())
+            f.WriteLine("call Memory.alloc 1")
+            f.WriteLine("pop pointer 0")
+        elif funcKind = "method" then
+            f.WriteLine("push argument 0")
+            f.WriteLine("pop pointer 0")
         subroutineBodyEl.Add(statements &en f className )
         subroutineBodyEl.Add(en.Current) //add }
         en.MoveNext()|>ignore
@@ -60,19 +71,22 @@ module parser =
     let private subroutineDec (en:byref<Collections.Generic.IEnumerator<XElement>>) (f:StreamWriter) (className:string)=
     
         let mutable subEl = XElement(XName.Get("subroutineDec"))
+        
         methodTable.startSubroutine|>ignore //clear the method table
         subEl.Add(en.Current)//add the word function/method /constructor
+        let funcKind =  en.Current.Value.Replace(" ","")
         en.MoveNext()|>ignore
         subEl.Add(en.Current)//add void/type
         en.MoveNext()|>ignore
         subEl.Add(en.Current)//add name of function
+        let name = en.Current.Value.Replace(" ","")
         en.MoveNext()|>ignore
         subEl.Add(en.Current)//add '('
         en.MoveNext()|>ignore
         subEl.Add(parameterList &en)//add parameterList
         subEl.Add(en.Current)//add ')'
         en.MoveNext()|>ignore
-        subEl.Add(subroutineBody &en f className)
+        subEl.Add(subroutineBody &en f className funcKind name)
         subEl
 
     let private classVarDec (en:byref<Collections.Generic.IEnumerator<XElement>>) (className:string) = 

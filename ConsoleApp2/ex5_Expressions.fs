@@ -135,8 +135,8 @@ module rec Expressions =
                 elif prevValValue.Equals("true") then
                     f.WriteLine("push constant 0")
                     f.WriteLine("not")
-                //elif prevValValue.Equals("this") then
-                    //f.WriteLine("push this 0")
+                elif prevValValue.Equals("this") then
+                    f.WriteLine("push pointer 0")
                 
                 //stringConstant
                 elif prevValName.Equals("stringConstant") then 
