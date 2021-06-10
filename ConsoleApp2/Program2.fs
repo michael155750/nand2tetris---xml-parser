@@ -20,7 +20,14 @@ let main argv =
     
         ex4.parser.parserMain path
     ans <- ""
-
+    Console.WriteLine("Act excercise 5?:")
+    Console.WriteLine("instert y for yes and n for no")
+    ans <- Console.ReadLine()
+    while ans <> "y" && ans <> "n" do
+        Console.WriteLine("instert y for yes and n for no")
+        ans <- Console.ReadLine()
+    if ans = "y" then
+        ex5.parser.parserMain path
 
     
     0 // return an integer exit code

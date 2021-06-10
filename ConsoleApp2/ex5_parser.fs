@@ -12,16 +12,19 @@ module parser =
     
     let private varDec (en:byref<Collections.Generic.IEnumerator<XElement>>)  (localNum:byref<int>)=
         let varDecEl=new XElement(XName.Get("varDec"))
+       
+        varDecEl.Add(en.Current) //add 'var'
+        en.MoveNext()|>ignore
+        varDecEl.Add(en.Current) //add type
+        let varType=en.Current.Value.Replace(" ","")
+        en.MoveNext()|>ignore
         while not(en.Current.Value.Replace(" ","").Equals(";")) do
-            varDecEl.Add(en.Current) //add 'var'
-            en.MoveNext()|>ignore
-            varDecEl.Add(en.Current) //add type
-            let varType=en.Current.Value.Replace(" ","")
-            en.MoveNext()|>ignore
             varDecEl.Add(en.Current) //add varName
+            
             let varName=en.Current.Value.Replace(" ","")
             methodTable.define varName varType "var"
             en.MoveNext()|>ignore
+        
             if en.Current.Value.Replace(" ","").Equals(",") then
                 varDecEl.Add(en.Current) //add ','
                 en.MoveNext()|>ignore
@@ -54,7 +57,7 @@ module parser =
     let private parameterList (en:byref<Collections.Generic.IEnumerator<XElement>> ) =
         let parameterListEl=new XElement(XName.Get("parameterList"))
         
-        en.MoveNext()|>ignore
+        
         while not (en.Current.Value.Replace(" ","").Equals(")")) do
             parameterListEl.Add(en.Current)//add type
             let varType=en.Current.Value
@@ -123,9 +126,9 @@ module parser =
             if i = 0  then  // add the word 'class'
                 classEl.Add(en.Current)
             elif i = 1 then //add the name of the class
-                className<-(en.Current.Value) 
+                className<-(en.Current.Value.Replace(" ","")) 
                 
-                classTables<-classTables.Add(className,new symbolTable(en.Current.Value)) //create the symbol table
+                classTables.Add(className,new symbolTable(en.Current.Value.Replace(" ","")))|>ignore //create the symbol table
                 classEl.Add(en.Current) 
             elif i = 2 then
                 classEl.Add(en.Current)

@@ -8,7 +8,7 @@ module rec Expressions =
     let opList = ["+";"=";"-";"*";"/";"&";"|";"<";">"]
 
     //temp
-    let f = File.CreateText("a.txt")
+    
 
     let opVMtranslator op =
         
@@ -22,6 +22,8 @@ module rec Expressions =
             |"<"->"lt"
             |">"->"gt"
             |_->"eq"
+        //לא מכיר ממודול למודול
+    let methodTable = new symbolTable("methodTable")
 
     let expressionList (en:byref<Collections.Generic.IEnumerator<XElement>>) (f:StreamWriter) (className:string) (expNum:byref<int>): XElement=
         let mutable el = XElement(XName.Get("expressionList"))

@@ -52,7 +52,7 @@ module rec Statements =
             f.WriteLine("push temp 0")
             f.WriteLine("pop that 0")
         el
-
+    
     let ifStatement (en:byref<Collections.Generic.IEnumerator<XElement>>) (f:StreamWriter) (className:string)=
         let mutable el = XElement(XName.Get("ifStatement"))
     

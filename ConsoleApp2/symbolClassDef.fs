@@ -1,4 +1,7 @@
 ﻿namespace ex5
+
+
+
 [<AutoOpen>]
 module symbolClassDef = 
     open System
@@ -70,9 +73,13 @@ module symbolClassDef =
             
     end
 
-    let mutable methodTable = symbolTable("methodTable")
+    
+    //לא מכיר ממודול למודול
+    let classTables:Dictionary<string,symbolTable> = new Dictionary<string,symbolTable>()
 
-    let mutable classTables:Map<String,symbolTable> =Map.empty
+    
+
+    let a = 0
 
    
             
