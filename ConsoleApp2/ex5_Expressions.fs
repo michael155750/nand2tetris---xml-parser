@@ -115,7 +115,12 @@ module rec Expressions =
             elif en.Current.Value.Replace(" ","").Equals("[") then//TODO
                 el.Add(en.Current)
                 en.MoveNext()|>ignore
+                f.Write("push ")
+                varInStackVM (prevValValue.ToString()) f className
                 el.Add(expression &en f className)
+                f.WriteLine("add")
+                f.WriteLine("pop pointer 1")
+                f.WriteLine("push that 0")
                 el.Add(en.Current)
                 en.MoveNext()|>ignore
             
@@ -144,20 +149,7 @@ module rec Expressions =
                 //varName
                 else
                     f.Write("push ")
-                    if methodTable.varCount(prevValValue.ToString()) > 0 then
-                        if methodTable.kindOf(prevValValue.ToString()) = "var" then
-                            f.Write("local ")
-          
-                        else
-                            f.Write("argument ")
-                        f.WriteLine(methodTable.indexOf(prevValValue.ToString()))
-                    else
-                        if classTables.[className].kindOf(prevValValue.ToString()) = "static" then
-                            f.Write("static ")
-          
-                        else
-                            f.Write("this ")
-                        f.WriteLine(methodTable.indexOf(prevValValue.ToString()))
+                    varInStackVM (prevValValue.ToString()) f className
                     
                     
         el
@@ -175,3 +167,20 @@ module rec Expressions =
            temp <- en.Current.Value.Replace(" ","")
     
         el
+
+
+    let varInStackVM (name:string) (f:StreamWriter) (className:string) = 
+        if methodTable.varCount(name) > 0 then
+                  if methodTable.kindOf(name) = "var" then
+                      f.Write("local ")
+                  
+                  else
+                      f.Write("argument ")
+                  f.WriteLine(methodTable.indexOf(name))
+              else
+                  if classTables.[className].kindOf(name) = "static" then
+                      f.Write("static ")
+              
+                  else
+                      f.Write("this ")
+                  f.WriteLine(methodTable.indexOf(name))

@@ -19,7 +19,8 @@ module rec Statements =
 
     let letStatement (en:byref<Collections.Generic.IEnumerator<XElement>>) (f:StreamWriter) (className:string)=
         let mutable el = XElement(XName.Get("letStatement"))
-        
+        let mutable isArray = false
+
         el.Add(en.Current)
         en.MoveNext()|>ignore 
         let varName = en.Current.Value.Replace(" ","")
@@ -28,9 +29,13 @@ module rec Statements =
         if en.Current.Value.Replace(" ","").Equals("[") then
             el.Add(en.Current)
             en.MoveNext()|>ignore
+            f.Write("push ")
+            varInStackVM (varName) f className
             el.Add(expression &en f className)
+            f.WriteLine("add")
             el.Add(en.Current)
             en.MoveNext()|>ignore
+            isArray <- true
         el.Add(en.Current)
         en.MoveNext()|>ignore 
         el.Add(expression &en f className)
@@ -38,22 +43,14 @@ module rec Statements =
         el.Add(en.Current)
         en.MoveNext()|>ignore 
 
-        //case of not array
-        f.Write("pop ")
-        if methodTable.varCount(varName) > 0 then
-            if methodTable.kindOf(varName) = "var" then
-                f.Write("local ")
-          
-            else
-                f.Write("argument ")
-            f.WriteLine(methodTable.indexOf(varName))
+        if not isArray then
+            f.Write("pop ")
+            varInStackVM (varName) f className
         else
-            if classTables.[className].kindOf(varName) = "static" then
-                f.Write("static ")
-          
-            else
-                f.Write("this ")
-            f.WriteLine(methodTable.indexOf(varName))
+            f.WriteLine("pop temp 0")
+            f.WriteLine("pop pointer 1")
+            f.WriteLine("push temp 0")
+            f.WriteLine("pop that 0")
         el
 
     let ifStatement (en:byref<Collections.Generic.IEnumerator<XElement>>) (f:StreamWriter) (className:string)=
