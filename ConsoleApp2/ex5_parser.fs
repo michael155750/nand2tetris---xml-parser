@@ -16,10 +16,10 @@ module parser =
             varDecEl.Add(en.Current) //add 'var'
             en.MoveNext()|>ignore
             varDecEl.Add(en.Current) //add type
-            let varType=en.Current.Value
+            let varType=en.Current.Value.Replace(" ","")
             en.MoveNext()|>ignore
             varDecEl.Add(en.Current) //add varName
-            let varName=en.Current.Value
+            let varName=en.Current.Value.Replace(" ","")
             methodTable.define varName varType "var"
             en.MoveNext()|>ignore
             if en.Current.Value.Replace(" ","").Equals(",") then
@@ -72,37 +72,39 @@ module parser =
     
         let mutable subEl = XElement(XName.Get("subroutineDec"))
         
-        methodTable.startSubroutine|>ignore //clear the method table
+        methodTable.startSubroutine //clear the method table
         subEl.Add(en.Current)//add the word function/method /constructor
         let funcKind =  en.Current.Value.Replace(" ","")
+        if funcKind = "method" then
+            methodTable.define "this" className "argument"
         en.MoveNext()|>ignore
         subEl.Add(en.Current)//add void/type
         en.MoveNext()|>ignore
         subEl.Add(en.Current)//add name of function
-        let name = en.Current.Value.Replace(" ","")
+        let funcName = en.Current.Value.Replace(" ","")
         en.MoveNext()|>ignore
         subEl.Add(en.Current)//add '('
         en.MoveNext()|>ignore
         subEl.Add(parameterList &en)//add parameterList
         subEl.Add(en.Current)//add ')'
         en.MoveNext()|>ignore
-        subEl.Add(subroutineBody &en f className funcKind name)
+        subEl.Add(subroutineBody &en f className funcKind funcName)
         subEl
 
     let private classVarDec (en:byref<Collections.Generic.IEnumerator<XElement>>) (className:string) = 
         let mutable varEl=new XElement(XName.Get("classVarDec"))
         varEl.Add(en.Current) //add the sort of the fields 'static' or 'field'
-        let varKind=en.Current.Value
+        let varKind=en.Current.Value.Replace(" ","")
         en.MoveNext()|>ignore
         varEl.Add(en.Current) //add the type of the fields 'int' or 'String' etc.
-        let varType=en.Current.Value
+        let varType=en.Current.Value.Replace(" ","")
         en.MoveNext()|>ignore
         let mutable isVariable=true
         while not(en.Current.Value.Replace(" ","").Equals(";")) do
             varEl.Add(en.Current) //add the name of variable or ','
             isVariable<-not isVariable
             if isVariable then
-                (classTables.[className]).define en.Current.Value varType varKind 
+                (classTables.[className]).define (en.Current.Value.Replace(" ","")) varType varKind 
             en.MoveNext()|>ignore
         varEl.Add(en.Current)//add ';'
         en.MoveNext()|>ignore
