@@ -142,12 +142,14 @@ module rec Expressions =
                 
                 //stringConstant
                 elif prevValName.Equals("stringConstant") then 
-                    f.Write("push constant")
-                    f.WriteLine(prevValValue.Length)
-                    f.WriteLine("call String.new")
-                    for ch in prevValValue.ToCharArray() do 
-                        f.Write("push constant")
+                    f.Write("push constant ")
+                    f.WriteLine(prevVal.Value.Length)
+                    f.WriteLine("call String.new 1")
+                    for ch in prevVal.Value.ToCharArray() do 
+                        f.Write("push constant ")
                         f.WriteLine(Convert.ToInt32(ch))
+                        f.WriteLine("call String.appendChar 2")
+
                 //varName
                 else
                     f.Write("push ")

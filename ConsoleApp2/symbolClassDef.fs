@@ -8,7 +8,7 @@ module symbolClassDef =
     open System.Collections.Generic
 
     //record for a row of symbol table
-    type tableRaw = 
+    type tableRaw  = 
         {
          mutable name:string
          mutable m_type:string
@@ -59,22 +59,31 @@ module symbolClassDef =
 
         //returns the kind by name
         member this.kindOf name = 
-            this.data.Find(fun el->el.name = name).kind
+            if not (System.Object.ReferenceEquals(this.data.Find(fun el->el.name = name), null)) then
+                this.data.Find(fun el->el.name = name).kind
+            else
+                ""
+            
 
         //returns the type by name
-        member this.typeOf name = 
-            this.data.Find(fun el->el.name = name).m_type
+        member this.typeOf name =
+            if not (Object.ReferenceEquals(this.data.Find(fun el->el.name = name),null)) then
+                this.data.Find(fun el->el.name = name).m_type
+            else
+                ""
 
         //returns the index by name
         member this.indexOf name = 
-            this.data.FindIndex(fun el->el.name = name)
-            //TODO: if not found return false (more good return -1)
+            if not (Object.ReferenceEquals(this.data.FindIndex(fun el->el.name = name),null)) then
+                this.data.FindIndex(fun el->el.name = name)
+            else
+                -1
             
             
     end
 
     
-    //לא מכיר ממודול למודול
+    
     let classTables:Dictionary<string,symbolTable> = new Dictionary<string,symbolTable>()
 
     
