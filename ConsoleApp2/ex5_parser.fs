@@ -22,7 +22,7 @@ module parser =
             varDecEl.Add(en.Current) //add varName
             
             let varName=en.Current.Value.Replace(" ","")
-            Expressions.methodTable.define varName varType "var"
+            Expressions.methodTable.define varName varType "local"
             en.MoveNext()|>ignore
         
             if en.Current.Value.Replace(" ","").Equals(",") then
@@ -95,18 +95,18 @@ module parser =
         subEl
 
     let private classVarDec (en:byref<Collections.Generic.IEnumerator<XElement>>) (className:string) = 
-        let mutable varEl=new XElement(XName.Get("classVarDec"))
+        let mutable varEl = new XElement(XName.Get("classVarDec"))
         varEl.Add(en.Current) //add the sort of the fields 'static' or 'field'
-        let varKind=en.Current.Value.Replace(" ","")
+        let varKind = en.Current.Value.Replace(" ","")
         en.MoveNext()|>ignore
         varEl.Add(en.Current) //add the type of the fields 'int' or 'String' etc.
-        let varType=en.Current.Value.Replace(" ","")
+        let varType = en.Current.Value.Replace(" ","")
         en.MoveNext()|>ignore
         let mutable isVariable=true
         while not(en.Current.Value.Replace(" ","").Equals(";")) do
             varEl.Add(en.Current) //add the name of variable or ','
             isVariable<-not isVariable
-            if isVariable then
+            if not (en.Current.Value.Replace(" ","").Equals(",")) then
                 (symbolClassDef.classTables.[className]).define (en.Current.Value.Replace(" ","")) varType varKind 
             en.MoveNext()|>ignore
         varEl.Add(en.Current)//add ';'

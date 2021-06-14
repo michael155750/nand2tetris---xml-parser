@@ -76,8 +76,8 @@ module symbolClassDef =
 
         //returns the index by name
         member this.indexOf name = 
-            if not (Object.ReferenceEquals(data.FindIndex(fun el->el.name = name),null)) then
-                data.FindIndex(fun el->el.name = name)
+            if not (Object.ReferenceEquals(data.Find(fun el->el.name = name),null)) then
+                data.Find(fun el->el.name = name).index
             else
                 -1
             

@@ -52,8 +52,7 @@ module rec Expressions =
         if en.Current.Value.Replace(" ","").Equals("(") then
             el.Add(en.Current)
             en.MoveNext()|>ignore
-            f.WriteLine("push " + methodTable.kindOf(prev.Value.Replace(" ","")) + " " + 
-                methodTable.indexOf(prev.Value.Replace(" ","")).ToString())
+            f.WriteLine("push pointer 0")
             exspNum <- 1
             el.Add(expressionList &en f className &exspNum)
             el.Add(en.Current)
@@ -70,14 +69,16 @@ module rec Expressions =
             en.MoveNext()|>ignore
             el.Add(en.Current)
             en.MoveNext()|>ignore
-            if methodTable.varCount(name) > 0 then // push this in case of method
-                f.WriteLine("push pointer 0")
+            if methodTable.varCount(prev.Value.Replace(" ","")) > 0 then // push this in case of method
+                f.WriteLine("push " + methodTable.kindOf(prev.Value.Replace(" ","")) + " " + 
+                    methodTable.indexOf(prev.Value.Replace(" ","")).ToString())
+                
                 exspNum <- 1
             el.Add(expressionList &en f className &exspNum)
             f.Write("call ")
             //check if it class name or instance name 
-            if methodTable.varCount(name) > 0 then
-                f.Write(methodTable.typeOf(name))
+            if methodTable.varCount(prev.Value.Replace(" ","")) > 0 then
+                f.Write(methodTable.typeOf(prev.Value.Replace(" ","")))
             else
                 f.Write(prev.Value.Replace(" ","") )
             f.WriteLine("." + name + " " + exspNum.ToString())
@@ -175,16 +176,16 @@ module rec Expressions =
 
     let varInStackVM (name:string) (f:StreamWriter) (className:string) = 
         if methodTable.varCount(name) > 0 then
-                  if methodTable.kindOf(name) = "var" then
-                      f.Write("local ")
-                  
-                  else
-                      f.Write("argument ")
-                  f.WriteLine(methodTable.indexOf(name))
+                  //if methodTable.kindOf(name) = "var" then
+                  //    f.Write("local ")
+                  //
+                  //else
+                  //    f.Write("argument ")
+                  f.WriteLine(methodTable.kindOf(name) + " " + methodTable.indexOf(name).ToString())
               else
                   if symbolClassDef.classTables.[className].kindOf(name) = "static" then
                       f.Write("static ")
               
                   else
                       f.Write("this ")
-                  f.WriteLine(methodTable.indexOf(name))
+                  f.WriteLine(classTables.[className].indexOf(name))
