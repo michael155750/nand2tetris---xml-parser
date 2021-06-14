@@ -24,12 +24,13 @@ module symbolClassDef =
         let mutable argIndex = 0 
         let mutable localIndex = 0 
          
+        let data = new Collections.Generic.List<tableRaw>()
         member _.name with get() = name1
-        member _.data = new List<tableRaw>()
+        
         
         //clear the table
         member this.startSubroutine = 
-            this.data.Clear|>ignore //reset all records
+            data.Clear|>ignore //reset all records
             argIndex<-0//reset counters of index
             localIndex<-0
     
@@ -41,7 +42,8 @@ module symbolClassDef =
             |"field"->index <- fieldIndex
             |"argument"->index <- argIndex
             |_->index <- localIndex
-            this.data.Add({name = name; m_type = t; kind = kind;index=index})
+            let raw1 = {name = name; m_type = t; kind = kind;index=index}
+            data.Add(raw1)
 
             match kind with
             |"static"->staticIndex <- staticIndex + 1
@@ -51,31 +53,31 @@ module symbolClassDef =
 
         //find the number elements in the table from certian kind
         member this.varKindCount kind = 
-            this.data.FindAll(fun el->el.kind = kind).Count
+            data.FindAll(fun el->el.kind = kind).Count
 
         //find the number of elements with the name
         member this.varCount name = 
-             this.data.FindAll(fun el->el.name = name).Count
+             data.FindAll(fun el->el.name = name).Count
 
         //returns the kind by name
         member this.kindOf name = 
-            if not (System.Object.ReferenceEquals(this.data.Find(fun el->el.name = name), null)) then
-                this.data.Find(fun el->el.name = name).kind
+            if not (System.Object.ReferenceEquals(data.Find(fun el->el.name = name), null)) then
+                data.Find(fun el->el.name = name).kind
             else
                 ""
             
 
         //returns the type by name
         member this.typeOf name =
-            if not (Object.ReferenceEquals(this.data.Find(fun el->el.name = name),null)) then
-                this.data.Find(fun el->el.name = name).m_type
+            if not (Object.ReferenceEquals(data.Find(fun el->el.name = name),null)) then
+                data.Find(fun el->el.name = name).m_type
             else
                 ""
 
         //returns the index by name
         member this.indexOf name = 
-            if not (Object.ReferenceEquals(this.data.FindIndex(fun el->el.name = name),null)) then
-                this.data.FindIndex(fun el->el.name = name)
+            if not (Object.ReferenceEquals(data.FindIndex(fun el->el.name = name),null)) then
+                data.FindIndex(fun el->el.name = name)
             else
                 -1
             

@@ -93,7 +93,7 @@ module rec Statements =
   
         el.Add(en.Current)
         en.MoveNext()|>ignore
-        f.WriteLine("WHILE_EXP"+ whileIndex.ToString())
+        f.WriteLine("label WHILE_EXP"+ whileIndex.ToString())
         
         el.Add(expression &en f className)
         el.Add(en.Current)
