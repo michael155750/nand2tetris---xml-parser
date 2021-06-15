@@ -147,18 +147,19 @@ module parser =
     let parserMain path = 
         let filesList = Directory.GetFiles(path,"*T.xml")
         for f in filesList do 
-            let name = Path.GetFileNameWithoutExtension(f)
-            let path2 = path + "\\" + name.[0..name.Length - 2] + ".xml"
-            if File.Exists(path2) then
-                File.Delete(path2)
-            let mutable el = XElement.Load(f)
+            if f.Chars(f.Length-5)='T' then
+                let name = Path.GetFileNameWithoutExtension(f)
+                let path2 = path + "\\" + name.[0..name.Length - 2] + ".xml"
+                if File.Exists(path2) then
+                    File.Delete(path2)
+                let mutable el = XElement.Load(f)
             
-            let vmf = File.CreateText(path + "\\" + name.[0..name.Length - 2] + ".vm") 
+                let vmf = File.CreateText(path + "\\" + name.[0..name.Length - 2] + ".vm") 
         
-            let mutable en = el.Elements().GetEnumerator()
+                let mutable en = el.Elements().GetEnumerator()
         
-            let result = classParse el &en vmf
-            vmf.Close() 
-            let doc=XDocument()
-            doc.Add(result)
-            doc.Save(path2)
+                let result = classParse el &en vmf
+                vmf.Close() 
+                let doc=XDocument()
+                doc.Add(result)
+                doc.Save(path2)
