@@ -30,7 +30,7 @@ module symbolClassDef =
         
         //clear the table
         member this.startSubroutine = 
-            data.Clear|>ignore //reset all records
+            data.Clear() //reset all records
             argIndex<-0//reset counters of index
             localIndex<-0
     

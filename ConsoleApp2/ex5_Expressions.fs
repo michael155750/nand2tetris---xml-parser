@@ -52,7 +52,9 @@ module rec Expressions =
         if en.Current.Value.Replace(" ","").Equals("(") then
             el.Add(en.Current)
             en.MoveNext()|>ignore
-            f.WriteLine("push pointer 0")
+            f.WriteLine("
+            
+            push pointer 0")
             exspNum <- 1
             el.Add(expressionList &en f className &exspNum)
             el.Add(en.Current)
@@ -182,10 +184,10 @@ module rec Expressions =
                   //else
                   //    f.Write("argument ")
                   f.WriteLine(methodTable.kindOf(name) + " " + methodTable.indexOf(name).ToString())
-              else
-                  if symbolClassDef.classTables.[className].kindOf(name) = "static" then
-                      f.Write("static ")
+        else
+            if symbolClassDef.classTables.[className].kindOf(name) = "static" then
+                f.Write("static ")
               
-                  else
-                      f.Write("this ")
-                  f.WriteLine(classTables.[className].indexOf(name))
+            else
+                f.Write("this ")
+            f.WriteLine(classTables.[className].indexOf(name))
