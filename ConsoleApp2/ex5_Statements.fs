@@ -55,24 +55,24 @@ module rec Statements =
     
     let ifStatement (en:byref<Collections.Generic.IEnumerator<XElement>>) (f:StreamWriter) (className:string)=
         let mutable el = XElement(XName.Get("ifStatement"))
-    
-    
+        let localIndex = ifIndex.ToString()
+        ifIndex <- ifIndex + 1
         for i=1 to 2 do
             el.Add(en.Current)
             en.MoveNext()|>ignore
     
         el.Add(expression &en f className)
-        f.WriteLine("if-goto IF_TRUE"+ ifIndex.ToString())
-        f.WriteLine("goto IF_FALSE"+ ifIndex.ToString())
-        f.WriteLine("label IF_TRUE"+ ifIndex.ToString())
+        f.WriteLine("if-goto IF_TRUE"+ localIndex)
+        f.WriteLine("goto IF_FALSE"+ localIndex)
+        f.WriteLine("label IF_TRUE"+ localIndex)
         for i=1 to 2 do
             el.Add(en.Current)
             en.MoveNext()|>ignore
         el.Add(statements &en f className)
         el.Add(en.Current)
         en.MoveNext()|>ignore
-        f.WriteLine("goto IF_END"+ ifIndex.ToString())
-        f.WriteLine("label IF_FALSE"+ ifIndex.ToString())
+        f.WriteLine("goto IF_END"+ localIndex)
+        f.WriteLine("label IF_FALSE"+ localIndex)
 
         if en.Current.Value.Replace(" ","").Equals("else") then
             for i=1 to 2 do
@@ -81,19 +81,20 @@ module rec Statements =
             el.Add(statements &en f className)
             el.Add(en.Current)
             en.MoveNext()|>ignore
-        f.WriteLine("label IF_END"+ ifIndex.ToString())
-        ifIndex <- ifIndex + 1
+        f.WriteLine("label IF_END"+ localIndex)
+        
         el
 
     let whileStatement (en:byref<Collections.Generic.IEnumerator<XElement>>)(f:StreamWriter) (className:string)=
         let mutable el = XElement(XName.Get("whileStatement"))
-        
+        let localIndex = whileIndex.ToString()
+        whileIndex <-whileIndex + 1
         el.Add(en.Current)
         en.MoveNext()|>ignore
   
         el.Add(en.Current)
         en.MoveNext()|>ignore
-        f.WriteLine("label WHILE_EXP"+ whileIndex.ToString())
+        f.WriteLine("label WHILE_EXP"+ localIndex)
         
         el.Add(expression &en f className)
         el.Add(en.Current)
@@ -101,15 +102,15 @@ module rec Statements =
         el.Add(en.Current)
         en.MoveNext()|>ignore
         f.WriteLine("not")
-        f.WriteLine("if-goto WHILE_END"+ whileIndex.ToString())
+        f.WriteLine("if-goto WHILE_END"+ localIndex)
         el.Add(statements &en f className)
-        f.WriteLine("goto WHILE_EXP"+ whileIndex.ToString())
-        f.WriteLine("label WHILE_END"+ whileIndex.ToString())
+        f.WriteLine("goto WHILE_EXP"+ localIndex)
+        f.WriteLine("label WHILE_END"+ localIndex)
         
         el.Add(en.Current)
         en.MoveNext()|>ignore
         
-        whileIndex <-whileIndex + 1
+        
         el
 
     let doStatement (en:byref<Collections.Generic.IEnumerator<XElement>>)(f:StreamWriter) (className:string)=

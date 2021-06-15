@@ -4,7 +4,7 @@ open System.Collections.Generic
 module indexes = 
     
     
-    //לא מכיר ממודול למודול
+    
     let mutable ifIndex = 0
     
     let mutable whileIndex = 0
