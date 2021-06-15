@@ -74,6 +74,10 @@ module rec Expressions =
                     methodTable.indexOf(prev.Value.Replace(" ","")).ToString())
                 
                 exspNum <- 1
+            elif classTables.[className].varCount(prev.Value.Replace(" ","")) > 0 then // push this in case of method of field
+                f.WriteLine("push this " + 
+                    classTables.[className].indexOf(prev.Value.Replace(" ","")).ToString())
+                exspNum <- 1
             el.Add(expressionList &en f className &exspNum)
             f.Write("call ")
             //check if it class name or instance name 
