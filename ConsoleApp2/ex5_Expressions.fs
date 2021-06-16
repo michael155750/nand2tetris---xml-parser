@@ -52,9 +52,7 @@ module rec Expressions =
         if en.Current.Value.Replace(" ","").Equals("(") then
             el.Add(en.Current)
             en.MoveNext()|>ignore
-            f.WriteLine("
-            
-            push pointer 0")
+            f.WriteLine("push pointer 0")
             exspNum <- 1
             el.Add(expressionList &en f className &exspNum)
             el.Add(en.Current)
@@ -85,6 +83,8 @@ module rec Expressions =
             //check if it class name or instance name 
             if methodTable.varCount(prev.Value.Replace(" ","")) > 0 then
                 f.Write(methodTable.typeOf(prev.Value.Replace(" ","")))
+            elif classTables.[className].varCount(prev.Value.Replace(" ","")) > 0 then
+                 f.Write(classTables.[className].typeOf(prev.Value.Replace(" ","")))
             else
                 f.Write(prev.Value.Replace(" ","") )
             f.WriteLine("." + name + " " + exspNum.ToString())
